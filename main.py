@@ -8,11 +8,11 @@ from parallel import parallel_dynamic_programming
 
 
 def do_stuff(memoize_dict=None):
-    for _ in range(10000):
-        key = random.randint(0, 200)
+    for _ in range(1000):
+        key = random.randint(0, 1000)
         if key in memoize_dict:
             continue
-        time.sleep(.1)
+        time.sleep(.05)
         value = key
         memoize_dict[key] = value
     return [(x, y) for x,y in memoize_dict.items()]
