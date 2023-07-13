@@ -1,12 +1,16 @@
 import multiprocessing
 import random
+import time
+
 from functools import partial
+
 
 NCPUS = multiprocessing.cpu_count()
 print(f"We have {NCPUS} cores to work on!")
 
 
-def parallel_dynamic_programming(dp_function, threads=max(1, NCPUS-2)):
+def parallel_dynamic_programming(dp_function, threads=None):
+    threads = threads or max(1, NCPUS-2)
     manager = multiprocessing.Manager()
     memoize_dict = manager.dict()
     lock = manager.Lock()
@@ -26,12 +30,24 @@ def dp_function(lock, memoize_dict, _):
         memoize_dict[key]=value
         lock.release()
 
-    for i in range(10):
-        key = random.randint(0,100000)
+    def get_memoize(key):
+        return memoize_dict.get(key)
+
+    for i in range(100):
+        key = random.randint(0,100)
         value = random.randint(0,100)
         set_memoize(key, value)
+        for i in range(100):
+            key = random.randint(0,100)
+            get_memoize(key)
+
 
 if __name__ == "__main__":
-    a = parallel_dynamic_programming(dp_function)
+    threads = 8
+    start = time.time()
+    a = parallel_dynamic_programming(dp_function, threads=threads)
+    total_time = time.time() - start
     print(a)
     print(len(a))
+    print("threads", threads)
+    print("time", total_time)
