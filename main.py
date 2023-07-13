@@ -18,7 +18,7 @@ def do_stuff(set_memoize=None, get_memoize=None):
             get_memoize(key)
 
 
-def count_leaves(tree, set_memoize=None, get_memoize=None):
+def count_paths_to_leaves(tree, set_memoize=None, get_memoize=None):
     def recursion(node):
         if (result := get_memoize(node)) is not None:
             return result
@@ -39,14 +39,14 @@ def count_leaves(tree, set_memoize=None, get_memoize=None):
 
 
 if __name__ == "__main__":
-    leaves = 100
-    reticulations = 100
+    leaves = 200
+    reticulations = 200
     tree = simulate_beta_splitting(n=leaves, beta=1.0)
     network = network_from_tree(tree, reticulations, AddEdgeMethod.UNIFORM)
-    for threads in [1,2,5,10]:
+    for threads in [1,2,5,10, None]:
         start = time.time()
         # a = parallel_dynamic_programming(do_stuff, threads=threads)
-        a = parallel_dynamic_programming(count_leaves, dp_fn_args=[network], threads=threads)
+        a = parallel_dynamic_programming(count_paths_to_leaves, dp_fn_args=[network], threads=threads)
         total_time = time.time() - start
         print(a)
         print("threads", threads)
