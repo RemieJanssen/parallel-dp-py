@@ -2,6 +2,7 @@ import random
 import time
 
 from phylox.generators.trees.beta_splitting_tree import simulate_beta_splitting
+from phylox.generators.trees.add_edges import AddEdgeMethod, network_from_tree
 
 from parallel import parallel_dynamic_programming
 
@@ -21,7 +22,7 @@ def count_leaves(tree, set_memoize=None, get_memoize=None):
     def recursion(node):
         if (result := get_memoize(node)) is not None:
             return result
-        time.sleep(0.1)
+        time.sleep(0.01)
         if tree.is_leaf(node):
             set_memoize(node, 1)
             return 1
@@ -38,12 +39,15 @@ def count_leaves(tree, set_memoize=None, get_memoize=None):
 
 
 if __name__ == "__main__":
-    threads = 1
-    tree = simulate_beta_splitting(n=100, beta=1.0)
-    start = time.time()
-    # a = parallel_dynamic_programming(do_stuff, threads=threads)
-    a = parallel_dynamic_programming(count_leaves, dp_fn_args=[tree], threads=threads)
-    total_time = time.time() - start
-    print(a)
-    print("threads", threads)
-    print("time", total_time)
+    leaves = 100
+    reticulations = 100
+    tree = simulate_beta_splitting(n=leaves, beta=1.0)
+    network = network_from_tree(tree, reticulations, AddEdgeMethod.UNIFORM)
+    for threads in [1,2,5,10]:
+        start = time.time()
+        # a = parallel_dynamic_programming(do_stuff, threads=threads)
+        a = parallel_dynamic_programming(count_leaves, dp_fn_args=[network], threads=threads)
+        total_time = time.time() - start
+        print(a)
+        print("threads", threads)
+        print("time", total_time)
