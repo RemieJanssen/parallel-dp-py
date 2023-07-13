@@ -8,11 +8,11 @@ from parallel import parallel_dynamic_programming
 
 
 def do_stuff(memoize_dict=None):
-    for i in range(1000):
-        key = random.randint(0, 50)
+    for _ in range(10000):
+        key = random.randint(0, 200)
         if key in memoize_dict:
             continue
-        time.sleep(.2)
+        time.sleep(.1)
         value = key
         memoize_dict[key] = value
     return [(x, y) for x,y in memoize_dict.items()]
@@ -43,7 +43,7 @@ if __name__ == "__main__":
     reticulations = 200
     tree = simulate_beta_splitting(n=leaves, beta=1.0)
     network = network_from_tree(tree, reticulations, AddEdgeMethod.UNIFORM)
-    for threads in [1,2,5,10, None]:
+    for threads in [1,2,5,10,15,20,None]:
         start = time.time()
         a = parallel_dynamic_programming(do_stuff, threads=threads)
         # a = parallel_dynamic_programming(count_paths_to_leaves, dp_fn_args=[network], threads=threads)
