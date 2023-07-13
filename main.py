@@ -8,14 +8,14 @@ from parallel import parallel_dynamic_programming
 
 
 def do_stuff(memoize_dict=None):
-    for i in range(10):
-        time.sleep(1)
-        key = random.randint(0, 100)
-        value = random.randint(0, 100)
+    for i in range(1000):
+        key = random.randint(0, 50)
+        if key in memoize_dict:
+            continue
+        time.sleep(.2)
+        value = key
         memoize_dict[key] = value
-        for j in range(10):
-            key = random.randint(0, 100)
-            memoize_dict.get(key)
+    return [(x, y) for x,y in memoize_dict.items()]
 
 
 def count_paths_to_leaves(tree, memoize_dict=None):
@@ -45,8 +45,8 @@ if __name__ == "__main__":
     network = network_from_tree(tree, reticulations, AddEdgeMethod.UNIFORM)
     for threads in [1,2,5,10, None]:
         start = time.time()
-        # a = parallel_dynamic_programming(do_stuff, threads=threads)
-        a = parallel_dynamic_programming(count_paths_to_leaves, dp_fn_args=[network], threads=threads)
+        a = parallel_dynamic_programming(do_stuff, threads=threads)
+        # a = parallel_dynamic_programming(count_paths_to_leaves, dp_fn_args=[network], threads=threads)
         total_time = time.time() - start
         print(a)
         print("threads", threads)
