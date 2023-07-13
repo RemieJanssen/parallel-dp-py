@@ -11,13 +11,12 @@ def parallel_dynamic_programming(
     threads = threads or max(1, NCPUS - 2)
     manager = multiprocessing.Manager()
     memoize_dict = manager.dict()
-    lock = manager.Lock()
     run_done_event = manager.Event()
 
     dp_fn_args = dp_fn_args or []
     dp_fn_kwargs = dp_fn_kwargs or {}
     dp_function = partial(dp_function, *dp_fn_args, **dp_fn_kwargs)
-    func = partial(dp_function_wrapped, dp_function, lock, memoize_dict, run_done_event)
+    func = partial(dp_function_wrapped, dp_function, memoize_dict, run_done_event)
 
     pool = multiprocessing.Pool()
     pool.map_async(func, range(threads))
@@ -28,17 +27,8 @@ def parallel_dynamic_programming(
     return memoize_dict[RESULT_KEY_IN_MEMODICT]
 
 
-def dp_function_wrapped(dp_fn, lock, memoize_dict, run_done_event, _):
-    def set_memoize(key, value):
-        lock.acquire()
-        memoize_dict[key] = value
-        lock.release()
-
-    def get_memoize(key):
-        value = memoize_dict.get(key)
-        return value
-
-    result = dp_fn(set_memoize=set_memoize, get_memoize=get_memoize)
-    set_memoize(RESULT_KEY_IN_MEMODICT, result)
+def dp_function_wrapped(dp_fn, memoize_dict, run_done_event, _):
+    result = dp_fn(memoize_dict=memoize_dict)
+    memoize_dict[RESULT_KEY_IN_MEMODICT] = result
     run_done_event.set()
     return result
